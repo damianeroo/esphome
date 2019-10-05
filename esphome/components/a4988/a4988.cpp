@@ -16,11 +16,14 @@ void A4988::setup() {
   this->step_pin_->digital_write(false);
   this->dir_pin_->setup();
   this->dir_pin_->digital_write(false);
+  this->enable_pin_->setup();
+  this->enable_pin_->digital_write(false);
 }
 void A4988::dump_config() {
   ESP_LOGCONFIG(TAG, "A4988:");
   LOG_PIN("  Step Pin: ", this->step_pin_);
   LOG_PIN("  Dir Pin: ", this->dir_pin_);
+  LOG_PIN("  Enable Pin: ", this->enable_pin_);
   LOG_PIN("  Sleep Pin: ", this->sleep_pin_);
   LOG_STEPPER(this);
 }
@@ -31,8 +34,10 @@ void A4988::loop() {
   }
   if (at_target) {
     this->high_freq_.stop();
+    this->enable_pin_->digital_write(true);
   } else {
     this->high_freq_.start();
+    this->enable_pin_->digital_write(false);
   }
 
   int32_t dir = this->should_step_();
